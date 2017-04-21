@@ -14,11 +14,12 @@ struct wierzcholek
     int nazwa;
     int dl;
     lista *sasiad;
+    bool visited;
 };
 
-void generuj_nast(wierzcholek T[])
+void generuj_nast(wierzcholek T[], double gestosc)
 {
-    int a,b;
+    int a,b,krawedzie=0;
     lista *current, *prev;
     for(int i=0; i<n; i++)
     {
@@ -33,24 +34,30 @@ void generuj_nast(wierzcholek T[])
                 else nowy->next=T[i].sasiad;
                 T[i].sasiad=nowy;
                 T[i].dl++;
+                krawedzie++;
             }
         }
-        a=rand()%T[i].dl;
-        for(int m=0; m<a; m++)
+    }
+    gestosc=gestosc*n*(n-1)/2;
+    while(krawedzie>=gestosc)
+    {
+        a=rand()%n;
+        if(T[a].sasiad!=NULL)
         {
-            current=T[i].sasiad;
-            b=rand()%T[i].dl;
+            current=T[a].sasiad;
+            b=rand()%T[a].dl;
             for(int j=0; j<b; j++)
             {
                 prev=current;
                 current=current->next;
             }
-            if(current==T[i].sasiad)
-            T[i].sasiad=current->next;
+            if(current==T[a].sasiad)
+            T[a].sasiad=current->next;
             else
             prev->next=current->next;
-            T[i].dl--;
+            T[a].dl--;
             delete current;
+            krawedzie--;
         }
     }
 }
@@ -64,7 +71,6 @@ void wyswietl_nast(wierzcholek T[])
         while(obecny!=NULL)
         {
             cout<<obecny->nazwa<<" ";
-            delete obecny;
             obecny=obecny->next;
         }
     }
@@ -95,6 +101,39 @@ void wpisz_nast(wierzcholek T[])
     }
  }
 
+void dfs(wierzcholek T[], int &odwiedzone, wierzcholek *stos)
+{
+    if(stos==NULL)
+    {
+        if(odwiedzone==n) return;
+        else
+        {
+            int i=0;
+            for(i=0; i<n; i++) if(!T[i].visited) break;
+            T[i].visited=1;
+            odwiedzone++;
+            dfs(T,odwiedzone,&T[i]);
+        }
+    }
+    else
+    {
+        while(stos->sasiad!=NULL)
+        {
+            if(!T[stos->sasiad->nazwa].visited)
+            {
+                T[stos->sasiad->nazwa].visited=1;
+                odwiedzone++;
+                dfs(T,odwiedzone,&T[stos->sasiad->nazwa]);
+            }
+            else
+            {
+                stos=&T[stos->sasiad->nazwa];
+            }
+        }
+        dfs(T,odwiedzone,0);
+    }
+}
+
  void usun_nast(wierzcholek T[])
  {
      lista *current,*current2;
@@ -109,17 +148,22 @@ void wpisz_nast(wierzcholek T[])
          }
      }
  }
+
 int main()
 {
     srand(time(NULL));
+    wierzcholek *stos=NULL;
+    int odwiedzone=0;
     wierzcholek *T = new wierzcholek[n];
     for(int i=0; i<n; i++)
     {
         T[i].sasiad=NULL;
         T[i].dl=0;
+        T[i].visited=0;
     }
-    generuj_nast(T);
+    generuj_nast(T,0.2);
     wyswietl_nast(T);
+    dfs(T,odwiedzone,stos);
     usun_nast(T);
     return 0;
 }
