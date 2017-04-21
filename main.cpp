@@ -15,6 +15,7 @@ struct wierzcholek
     int dl;
     lista *sasiad;
     bool visited;
+    int start, stop;
 };
 
 void generuj_nast(wierzcholek T[], double gestosc)
@@ -79,7 +80,7 @@ void wyswietl_nast(wierzcholek T[])
 void wpisz_nast(wierzcholek T[])
  {
     int a;
-    cout<<"wpisz recznie bo nie dziala: "<<endl;
+    cout<<"wpisz recznie: "<<endl;
     for(int i=0; i<n; i++)
     {
         cout<<"wierzcholek "<<i<<endl;
@@ -101,7 +102,7 @@ void wpisz_nast(wierzcholek T[])
     }
  }
 
-void dfs(wierzcholek T[], int &odwiedzone, wierzcholek *stos)
+void dfs(wierzcholek T[], int &odwiedzone, wierzcholek *stos, int &krok)
 {
     if(stos==NULL)
     {
@@ -110,28 +111,35 @@ void dfs(wierzcholek T[], int &odwiedzone, wierzcholek *stos)
         {
             int i=0;
             for(i=0; i<n; i++) if(!T[i].visited) break;
+            cout<<" odwiedzam "<<T[i].nazwa;
             T[i].visited=1;
             odwiedzone++;
-            dfs(T,odwiedzone,&T[i]);
+            T[i].start=++krok;
+            dfs(T,odwiedzone,&T[i],krok);
+            T[i].stop=++krok;
         }
     }
     else
     {
         while(stos->sasiad!=NULL)
         {
-            if(!T[stos->sasiad->nazwa].visited)
+            if(!T[stos->sasiad->nazwa-1].visited)
             {
-                T[stos->sasiad->nazwa].visited=1;
+                T[stos->sasiad->nazwa-1].visited=1;
+                cout<<" odwiedzam "<<T[stos->sasiad->nazwa-1].nazwa;
                 odwiedzone++;
-                dfs(T,odwiedzone,&T[stos->sasiad->nazwa]);
+                T[stos->sasiad->nazwa-1].start=++krok;
+                dfs(T,odwiedzone,&T[stos->sasiad->nazwa-1],krok);
+                T[stos->sasiad->nazwa-1].stop=++krok;
             }
             else
             {
-                stos=&T[stos->sasiad->nazwa];
+                stos->sasiad=stos->sasiad->next;
             }
         }
-        dfs(T,odwiedzone,0);
+        return;
     }
+    dfs(T,odwiedzone,0,krok);
 }
 
  void usun_nast(wierzcholek T[])
@@ -153,7 +161,7 @@ int main()
 {
     srand(time(NULL));
     wierzcholek *stos=NULL;
-    int odwiedzone=0;
+    int odwiedzone=0, krok=0;
     wierzcholek *T = new wierzcholek[n];
     for(int i=0; i<n; i++)
     {
@@ -163,7 +171,12 @@ int main()
     }
     generuj_nast(T,0.2);
     wyswietl_nast(T);
-    dfs(T,odwiedzone,stos);
+    dfs(T,odwiedzone,stos,krok);
+    cout<<endl;
+    for(int i=0; i<n; i++)
+    {
+        cout<<"etykiety wierzcholka: "<<T[i].nazwa<<" "<<T[i].start<<" "<<T[i].stop<<endl;
+    }
     usun_nast(T);
     return 0;
 }
