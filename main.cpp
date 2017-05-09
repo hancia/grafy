@@ -3,9 +3,8 @@
 #include<cstdlib>
 #include <fstream>
 using namespace std;
-int n=4000;
+int n=5000;
 double g=0.4;
-
 //struktury dla listy nastepnikow
 struct lista
 {
@@ -46,7 +45,6 @@ void generuj_macierz(int **M, double gestosc,int krawedzie)
 //generuje liste nastepnikow na podstawie macierzy
 void generuj_nast(wierzcholek T[], int **M)
 {
-    lista *current, *prev;
     for(int i=0; i<n; i++)
     {
         T[i].nazwa=i+1;
@@ -65,7 +63,7 @@ void generuj_nast(wierzcholek T[], int **M)
 }
 
 
-//generuje liste lukow na podstawie listy nastepnikow
+//generuje liste lukow na podstawie mqcierzy
 lista_l* generuj_luki(lista_l *pierwszy, int **M)
 {
     for(int i=0; i<n; i++)
@@ -125,7 +123,7 @@ void dfs(wierzcholek T[], int &odwiedzone, lista *stos, int &krok, int E[][2])
                 T[stos->nazwa-1].visited=1;
                 odwiedzone++;
                 E[stos->nazwa-1][0]=++krok;
-                dfs(T,odwiedzone,stos,krok,E);
+                dfs(T,odwiedzone,T[stos->nazwa-1].sasiad,krok,E);
                 E[stos->nazwa-1][1]=++krok;
             }
             else
@@ -137,6 +135,7 @@ void dfs(wierzcholek T[], int &odwiedzone, lista *stos, int &krok, int E[][2])
     }
     dfs(T,odwiedzone,0,krok,E);
 }
+
 
 //zlicza luki powrotne korzystajac z listy nastepnikow
 int zlicz_luki_nast(wierzcholek T[], int E[][2])
@@ -271,7 +270,7 @@ int main()
     start=clock();
     zlicz_luki_l(pierwszy,E);
     a3=double(clock()-start)/CLOCKS_PER_SEC;
-    cout<<"Macierz sasiedztwa "<<a1<<" Lista nastêpnikow "<<a2<<" Lista lukow "<<a3<<endl;
+    cout<<"Macierz sasiedztwa "<<a1<<" Lista nastÃªpnikow "<<a2<<" Lista lukow "<<a3<<endl;
     usun_nast(T);
     delete []T;
     for(int i=0; i<n; i++)
